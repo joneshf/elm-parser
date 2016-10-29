@@ -6,11 +6,9 @@ import Parser exposing (..)
 value : Decoder a -> Parser Value a
 value decoder =
   Parser <| \s ->
-    case Json.Decode.decodeValue decoder s of
-      Err _ ->
-        []
-      Ok a ->
-        [(a, s)]
+    Json.Decode.decodeValue decoder s
+      |> Result.map (flip (,) s)
+      |> Result.formatError (\x -> [Fail x])
 
 required : String -> Decoder a -> Parser Value (a -> b) -> Parser Value b
 required field decoder =
